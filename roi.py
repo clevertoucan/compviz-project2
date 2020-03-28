@@ -5,6 +5,7 @@ import matplotlib.image as img
 from matplotlib.path import Path as MplPath
 import glob
 import csv
+from typing import Tuple, List
 
 
 def get_mask(self, current_image):
@@ -25,6 +26,7 @@ def get_mask(self, current_image):
 def save_roi(filepath, roi):
     a = np.asarray([roi.x, roi.y])
     np.savetxt(filepath, a, delimiter=",")
+
 
 def load_roi(csv_filepath):
     c = []
@@ -47,21 +49,14 @@ def load_roi(csv_filepath):
 img_path = r'./train_images/'
 train_images = glob.glob(img_path + "/*.jpg")
 
-for i in train_images:
-    filename = i[14:-4]
-    arr = img.imread(i)
-    plt.imshow(arr)
-    roi = poly(color='r')
-    save_roi("./masks/" + filename + ".csv", roi)
 
-csv_path = r'./masks/'
-masks = glob.glob(csv_path + "/*.csv")
-
-for m in masks:
-    filename = m[12:-4]
-    roi = load_roi(m)
-    arr = img.imread(img_path + filename + ".jpg")
-    mask = get_mask(roi, arr)
-    plt.imsave("./masks/" + filename + ".png", mask)
+def load_all_roi_data() -> List[Tuple[np.array, poly]]:
+    csv_path = r'./roi_coords/'
+    masks = glob.glob(csv_path + "/*.csv")
+    roi_data = []
+    for m in masks:
+        filename = m[12:-4]
+        roi_data.append((img.imread(img_path + filename + ".jpg"), load_roi(m)))
+    return roi_data
 
 
